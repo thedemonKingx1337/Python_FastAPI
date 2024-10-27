@@ -6,8 +6,11 @@ from .model import schemas, tableModels
 # importing the engine object (presumably created in database.py) from the database module
 from .database.database import engine, SessionLocal
 
+# importing Hashing file
+from . import hashing
 
 from sqlalchemy.orm import Session
+from typing import List
 
 
 app = FastAPI()
@@ -34,10 +37,10 @@ def create(request: schemas.Blog, db: Session = Depends(get_db)):
     return new_blog
 
 
-# read all data from the database
+# read all data from the database with response model
 
 
-@app.get("/blog")
+@app.get("/blog", response_model=List[schemas.ShowBlog])
 def all(db: Session = Depends(get_db)):
     blogs = db.query(tableModels.Blog).all()
     return blogs
@@ -80,7 +83,7 @@ def destroy(id: int, db: Session = Depends(get_db)):
 
 
 # update an existing date
-@app.put("/blog/{id}", status_code=status.HTTP_202_ACCEPTED)
+@app.put("/blog/{id}", status_code=status.HTTP_202_ACCEPTED, response_model=schemas.ShowBlog)
 def update(id: int, request: schemas.Blog, db: Session = Depends(get_db)):
     blog = db.query(tableModels.Blog).filter(tableModels.Blog.id == id)
     if not blog.first():
@@ -89,3 +92,18 @@ def update(id: int, request: schemas.Blog, db: Session = Depends(get_db)):
     blog.update(request)
     db.commit()
     return {"Done": f"Blog with {id} updated"}
+
+
+# user data N hashing password
+
+
+@app.post("/user")
+def create_user(request: schemas.User, db: Session = Depends(get_db)):
+
+    new_user = tableModels.User(name=request.name,
+                                email=request.email,
+                                password=hashing.Hash.bcrypt(request.password))
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
