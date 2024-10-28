@@ -28,7 +28,7 @@ def get_db():
 # store data on the database
 
 
-@app.post("/blog", status_code=status.HTTP_201_CREATED)
+@app.post("/blog", status_code=status.HTTP_201_CREATED, tags=["blogs"])
 def create(request: schemas.Blog, db: Session = Depends(get_db)):
     new_blog = tableModels.Blog(title=request.title, body=request.body)
     db.add(new_blog)
@@ -40,7 +40,7 @@ def create(request: schemas.Blog, db: Session = Depends(get_db)):
 # read all data from the database with response model
 
 
-@app.get("/blog", response_model=List[schemas.ShowBlog])
+@app.get("/blog", response_model=List[schemas.ShowBlog], tags=["blogs"])
 def all(db: Session = Depends(get_db)):
     blogs = db.query(tableModels.Blog).all()
     return blogs
@@ -48,7 +48,7 @@ def all(db: Session = Depends(get_db)):
 # filtering and fetching data from db with passed data
 
 
-@app.get("/blog/{id}", status_code=200)
+@app.get("/blog/{id}", status_code=200, tags=["blogs"])
 def show(id: int, response: Response, db: Session = Depends(get_db)):
     blog = db.query(tableModels.Blog).filter(tableModels.Blog.id == id).first()
     if not blog:
@@ -60,7 +60,7 @@ def show(id: int, response: Response, db: Session = Depends(get_db)):
 
 
 # Delete data from the database
-@app.delete("/blog/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/blog/{id}", status_code=status.HTTP_204_NO_CONTENT, tags=["blogs"])
 def destroy(id: int, db: Session = Depends(get_db)):
     # Query to find the blog with the given ID
     blog = db.query(tableModels.Blog).filter(tableModels.Blog.id == id)
@@ -83,7 +83,7 @@ def destroy(id: int, db: Session = Depends(get_db)):
 
 
 # update an existing date
-@app.put("/blog/{id}", status_code=status.HTTP_202_ACCEPTED, response_model=schemas.ShowBlog)
+@app.put("/blog/{id}", status_code=status.HTTP_202_ACCEPTED, response_model=schemas.ShowBlog, tags=["blogs"])
 def update(id: int, request: schemas.Blog, db: Session = Depends(get_db)):
     blog = db.query(tableModels.Blog).filter(tableModels.Blog.id == id)
     if not blog.first():
@@ -97,7 +97,7 @@ def update(id: int, request: schemas.Blog, db: Session = Depends(get_db)):
 # user data N hashing password
 
 
-@app.post("/user")
+@app.post("/user", response_model=schemas.ShowUser, tags=["users"])
 def create_user(request: schemas.User, db: Session = Depends(get_db)):
 
     new_user = tableModels.User(name=request.name,
@@ -107,3 +107,14 @@ def create_user(request: schemas.User, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
+
+# fetching user data with specified id
+
+
+@app.get("/user{id}", response_model=schemas.ShowUser, tags=["users"])
+def get_user(id: int, db: Session = Depends(get_db)):
+    user = db.query(tableModels.User).filter(tableModels.User.id == id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"User with {id} not found")
+    return user
