@@ -23,6 +23,6 @@ def login(request: schemas.Login, db: Session = Depends(database.get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"User {request.username} not authenticated")
 
-    # now we need to generate JWT token and retuen
+    # now we need to generate JWT token and return
 
     return user
