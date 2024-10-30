@@ -2,6 +2,11 @@ from pydantic import BaseModel
 from typing import List
 
 
+class Login(BaseModel):
+    username: str
+    password: str
+
+
 class Blog(BaseModel):
     title: str
     body: str

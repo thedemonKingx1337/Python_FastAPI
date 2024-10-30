@@ -12,11 +12,12 @@ from . import hashing
 from sqlalchemy.orm import Session
 from typing import List
 
-from .routers import blog, users
+from .routers import blog, users, login
 
 
 app = FastAPI()
 
+app.include_router(login.router)
 app.include_router(blog.router)
 app.include_router(users.router)
 
