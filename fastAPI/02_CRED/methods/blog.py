@@ -20,7 +20,7 @@ def get_all(db: Session):
     return blogs
 
 
-def show(db: Session):
+def show(db: Session, id: int):
     blog = db.query(tableModels.Blog).filter(tableModels.Blog.id == id).first()
     if not blog:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -56,6 +56,6 @@ def update(id: int, db: Session, request: schemas.Blog):
     if not blog.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Blog with {id} not found")
-    blog.update(request)
+    blog.update(request.dict())
     db.commit()
     return {"Done": f"Blog with {id} updated"}

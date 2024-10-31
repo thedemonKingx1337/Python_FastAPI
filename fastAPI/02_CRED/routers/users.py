@@ -7,6 +7,8 @@ from ..database.database import engine, SessionLocal
 from ..database.database import get_db
 from .. import hashing
 from .. methods import user
+from .. import OAuth2
+
 
 router = APIRouter(tags=["users"])
 
@@ -22,5 +24,5 @@ def create_user(request: schemas.User, db: Session = Depends(get_db)):
 
 
 @router.get("/user{id}", response_model=schemas.ShowUser)
-def get_user(id: int, db: Session = Depends(get_db)):
+def get_user(id: int, db: Session = Depends(get_db), current_user: schemas.User = Depends(OAuth2.get_current_user)):
     return user.get_user(db,  id)

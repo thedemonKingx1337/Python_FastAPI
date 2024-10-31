@@ -32,3 +32,12 @@ class ShowBlog(Blog):
         from_attributes = True
 
     owner: ShowUser
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: str | None = None
